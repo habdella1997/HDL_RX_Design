@@ -15,9 +15,7 @@ module packetDetector
     input [ARRAY_SIZE:0]    im_i ,
     input                   clk_i,
     input                   rst_i,
-//    output [(32*PHASES)-1:0]    var_o,
-//    output [(32*PHASES)-1:0] auto_corr_o,
-    output [0:PHASES-1] threshold_decision_o
+    output [PHASES-1:0] threshold_decision_o
     );
     
     localparam integer LAG_SAMPLES = PERIODICITY; // IEEE802.11a = 16 
@@ -26,7 +24,7 @@ module packetDetector
     localparam integer SLICE_LEFT  = PHASES-PERIODICITY;
     localparam integer SLICE_RIGHT = SLICE_LEFT + PERIODICITY;
     localparam integer LOG_NUMBER = $clog2(PHASES);
-    localparam signed [15:0] LOWWERTHRESH_Q015 =  16'h59CA; // q_fixed_val = round(LOWWERTHRESH * 2^15);  % = 22938 (decimal) = 16'h59CA (hex)
+    localparam signed [15:0] LOWWERTHRESH_Q015 = 16'h4CCD; //  16'h59CA; // q_fixed_val = round(LOWWERTHRESH * 2^15);  % = 22938 (decimal) = 16'h59CA (hex)
     
     
     reg  [DELAY_WIDTH:0] re_delay_line_reg ; // holds the delayed 16 samples (period of auto-correlation)
@@ -311,14 +309,8 @@ module packetDetector
       wire signed [(INT_BITS+FRAC_BITS+1)*2-1:0] va_re_squared [0:PHASES-1];
       wire signed [(INT_BITS+FRAC_BITS+1)*2  :0] ac_sum_square [0:PHASES-1];
       
-      reg  signed [(INT_BITS+FRAC_BITS+1)*2-1:0]  va_re_squared_reg [0:PHASES-1]; //delay
-      wire  signed [(INT_BITS+FRAC_BITS+1)*2-1:0] va_re_squared_z [0:PHASES-1];
       
-      assign va_re_squared_z = va_re_squared_reg; // 1-cycle delay for the variance to compensate for the cycle in the addition
-      always @ (posedge clk_i) begin
-        va_re_squared_reg <= va_re_squared;
-      end
-      
+        
       wire signed  [(INT_BITS+FRAC_BITS+4):0] ac_re_divide16 [0:PHASES-1];
       wire signed [(INT_BITS+FRAC_BITS+4):0] ac_im_divide16 [0:PHASES-1];
       wire signed [(INT_BITS+FRAC_BITS+4):0] va_re_divide16 [0:PHASES-1];
@@ -383,23 +375,5 @@ module packetDetector
              assign threshold_decision_o[i] = (ac_regiseted_delay2_wired[i] > lower_threshold_compute_q2_30[i] && lower_threshold_compute_q2_30[i]!=0) ? 1'b1:1'b0;
         end
       endgenerate
-    
-
-//    generate
-//    for (i = 0; i < PHASES; i = i + 1) begin : PACK_OUTPUT
-//        assign var_o[(i+1)*32-1 : i*32] = va_re_squared_reg[i];//slidingAvg_va_re_wire[i][DATAWIDTH-1:0];
-//        assign auto_corr_o[(i+1)*32-1 : i*32] = ac_sum_square[i][32:1];
-//    end
-//    endgenerate
-      
-      
-
-        
-               
-
-    
-    
-    
-    
     
 endmodule

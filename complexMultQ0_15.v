@@ -38,19 +38,20 @@ module complexMultQ0_15 #(
         .m_axis_dout_tvalid ()
     );
     
-    wire signed [COEFF_WIDTH-1:0] output_re_wire;
-    wire signed [COEFF_WIDTH-1:0] output_im_wire;
+//    wire signed [COEFF_WIDTH-1:0] output_re_wire;
+//    wire signed [COEFF_WIDTH-1:0] output_im_wire;
     
-    assign output_re_wire = result_tdata[COEFF_WIDTH-1:0];
-    assign output_im_wire = result_tdata[MULTOUT_WIDTH-1:COEFF_WIDTH];
-//    assign re_o = (output_re_wire >>> FRAC_BITS);
-//    assign im_o = (output_im_wire >>> FRAC_BITS);
+//    assign output_re_wire = result_tdata[COEFF_WIDTH-1:0];
+//    assign output_im_wire = result_tdata[MULTOUT_WIDTH-1:COEFF_WIDTH];
     
-    wire signed [COEFF_WIDTH-1:0] re_shifted = output_re_wire >>> FRAC_BITS;
-    wire signed [COEFF_WIDTH-1:0] im_shifted = output_im_wire >>> FRAC_BITS;
-    assign re_o = (re_shifted > 32767) ? 32767 :
-                  (re_shifted < -32768) ? -32768 : re_shifted;
-    assign im_o = (im_shifted > 32767) ? 32767 :
-                  (im_shifted < -32768) ? -32768 : im_shifted;
+    assign re_o = (result_tdata[COEFF_WIDTH-1:0] >>> FRAC_BITS);
+    assign im_o = (result_tdata[MULTOUT_WIDTH-1:COEFF_WIDTH] >>> FRAC_BITS);
+    
+//    wire signed [COEFF_WIDTH-1:0] re_shifted = output_re_wire >>> FRAC_BITS;
+//    wire signed [COEFF_WIDTH-1:0] im_shifted = output_im_wire >>> FRAC_BITS;
+//    assign re_o = (re_shifted > 32767) ? 32767 :
+//                  (re_shifted < -32768) ? -32768 : re_shifted;
+//    assign im_o = (im_shifted > 32767) ? 32767 :
+//                  (im_shifted < -32768) ? -32768 : im_shifted;
    
 endmodule

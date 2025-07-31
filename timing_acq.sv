@@ -75,54 +75,84 @@ module timing_acq
 
     wire signed [31:0] cross_correlation_output_wire [0:PHASES-1];
     
+//    genvar i; 
+//    generate 
+//        for(i=0;i<PHASES;i++)begin
+//            if(i >= 63) begin
+//                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_re;
+//                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_im;
+//                assign cross_correlation_phase_re = re_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH];
+//                assign cross_correlation_phase_im = im_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH];
+//                // PERFORM CROSS CORRELATION
+//                cross_correlation #( // 9 clock cycle latency. 
+//                    .DATAWIDTH   (DATAWIDTH   ),
+//                    .PHASES      (PHASES      ),
+//                    .PERIODICITY (PERIODICITY ),
+//                    .INT_BITS    (INT_BITS    ),
+//                    .FRAC_BITS   (FRAC_BITS   ),
+//                    .ARRAY_SIZE  (ARRAY_SIZE  ),
+//                    .LTF_SIZE    (LTF_SIZE    )
+//                )cross_correlation_phase(
+//                    .re_i(cross_correlation_phase_re),
+//                    .im_i(cross_correlation_phase_im),
+//                    .clk_i(clk_i),
+//                    .rst_i(rst_i),
+//                    .magnitude_out(cross_correlation_output_wire[i])
+//                );
+//            end else begin 
+//                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_re;
+//                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_im;
+//                assign cross_correlation_phase_re = {input_buffer_re_reg[(LTF_SIZE-(i+1))*DATAWIDTH-1:0], re_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH] };
+//                assign cross_correlation_phase_im = {input_buffer_im_reg[(LTF_SIZE-(i+1))*DATAWIDTH-1:0], im_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH] };
+
+//                // PERFORM CROSS CORRELATION
+//                cross_correlation #(
+//                    .DATAWIDTH   (DATAWIDTH   ),
+//                    .PHASES      (PHASES      ),
+//                    .PERIODICITY (PERIODICITY ),
+//                    .INT_BITS    (INT_BITS    ),
+//                    .FRAC_BITS   (FRAC_BITS   ),
+//                    .ARRAY_SIZE  (ARRAY_SIZE  ),
+//                    .LTF_SIZE    (LTF_SIZE    )
+//                )cross_correlation_phase(
+//                    .re_i(cross_correlation_phase_re),
+//                    .im_i(cross_correlation_phase_im),
+//                    .clk_i(clk_i),
+//                    .rst_i(rst_i),
+//                    .magnitude_out(cross_correlation_output_wire[i])
+//                );
+                
+//            end
+//        end
+//    endgenerate
+
     genvar i; 
     generate 
         for(i=0;i<PHASES;i++)begin
+            wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_re;
+            wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_im;
             if(i >= 63) begin
-                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_re;
-                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_im;
                 assign cross_correlation_phase_re = re_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH];
                 assign cross_correlation_phase_im = im_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH];
-                // PERFORM CROSS CORRELATION
-                cross_correlation #( // 9 clock cycle latency. 
-                    .DATAWIDTH   (DATAWIDTH   ),
-                    .PHASES      (PHASES      ),
-                    .PERIODICITY (PERIODICITY ),
-                    .INT_BITS    (INT_BITS    ),
-                    .FRAC_BITS   (FRAC_BITS   ),
-                    .ARRAY_SIZE  (ARRAY_SIZE  ),
-                    .LTF_SIZE    (LTF_SIZE    )
-                )cross_correlation_phase(
-                    .re_i(cross_correlation_phase_re),
-                    .im_i(cross_correlation_phase_im),
-                    .clk_i(clk_i),
-                    .rst_i(rst_i),
-                    .magnitude_out(cross_correlation_output_wire[i])
-                );
             end else begin 
-                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_re;
-                wire [(LTF_SIZE*DATAWIDTH)-1:0] cross_correlation_phase_im;
                 assign cross_correlation_phase_re = {input_buffer_re_reg[(LTF_SIZE-(i+1))*DATAWIDTH-1:0], re_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH] };
-                assign cross_correlation_phase_im = {input_buffer_im_reg[(LTF_SIZE-(i+1))*DATAWIDTH-1:0], im_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH] };
-
-                // PERFORM CROSS CORRELATION
-                cross_correlation #(
-                    .DATAWIDTH   (DATAWIDTH   ),
-                    .PHASES      (PHASES      ),
-                    .PERIODICITY (PERIODICITY ),
-                    .INT_BITS    (INT_BITS    ),
-                    .FRAC_BITS   (FRAC_BITS   ),
-                    .ARRAY_SIZE  (ARRAY_SIZE  ),
-                    .LTF_SIZE    (LTF_SIZE    )
-                )cross_correlation_phase(
-                    .re_i(cross_correlation_phase_re),
-                    .im_i(cross_correlation_phase_im),
-                    .clk_i(clk_i),
-                    .rst_i(rst_i),
-                    .magnitude_out(cross_correlation_output_wire[i])
-                );
-                
+                assign cross_correlation_phase_im = {input_buffer_im_reg[(LTF_SIZE-(i+1))*DATAWIDTH-1:0], im_i_reversed[ARRAY_SIZE -: (i+1)*DATAWIDTH] };                
             end
+            cross_correlation #(
+                .DATAWIDTH   (DATAWIDTH   ),
+                .PHASES      (PHASES      ),
+                .PERIODICITY (PERIODICITY ),
+                .INT_BITS    (INT_BITS    ),
+                .FRAC_BITS   (FRAC_BITS   ),
+                .ARRAY_SIZE  (ARRAY_SIZE  ),
+                .LTF_SIZE    (LTF_SIZE    )
+            )cross_correlation_phase(
+                .re_i(cross_correlation_phase_re),
+                .im_i(cross_correlation_phase_im),
+                .clk_i(clk_i),
+                .rst_i(rst_i),
+                .magnitude_out(cross_correlation_output_wire[i])
+            );
         end
     endgenerate
     
